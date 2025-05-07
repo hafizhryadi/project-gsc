@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "866843688728",
+    "project_id": "distributor-app-53bca",
+    "storage_bucket": "distributor-app-53bca.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:866843688728:android:cccf9e278c676cc8bee86d",
+        "android_client_info": {
+          "package_name": "com.ntz.distributor_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "866843688728-hi19la6co6viaam6v57ccums0kp54468.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdpdsAiooUXpEMjLnLGn3Y_-Oa4e_NABM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "866843688728-hi19la6co6viaam6v57ccums0kp54468.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
