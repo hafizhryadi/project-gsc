@@ -1,5 +1,6 @@
-package com.ntz.distributor_app.ui.screens
 
+package com.ntz.distributor_app.ui.screens
+/*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -78,7 +79,9 @@ fun PreferenceScreen(
                     showSaveSuccessSnackbar = true // Tampilkan notif sukses
                 },
                 text = { Text("Simpan Preferensi") },
-                icon = { /* Icon Simpan */ }
+                icon = { */
+/* Icon Simpan *//*
+ }
             )
         }
     ) { paddingValues ->
@@ -148,4 +151,4 @@ fun PreferenceScreen(
             }
         }
     }
-}
+}*/

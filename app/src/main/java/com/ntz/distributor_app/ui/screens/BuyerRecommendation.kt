@@ -1,10 +1,10 @@
 package com.ntz.distributor_app.ui.screens
+/*
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
@@ -13,19 +13,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ntz.distributor_app.data.model.Distributor
+import com.ntz.distributor_app.data.model.UserDistributionData
 import com.ntz.distributor_app.ui.viewmodel.* // Import semua state
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(
-    distributorViewModel: DistributorViewModel = hiltViewModel(), // Inject DistributorViewModel
+fun BuyerRecommendation(
+    buyerRecommendationViewModel: BuyerRecommendationViewModel = hiltViewModel(), // Inject DistributorViewModel
     // authViewModel: AuthViewModel = hiltViewModel(), // Inject AuthViewModel jika perlu info user
     onNavigateToPreferences: () -> Unit,
     onLogout: () -> Unit
 ) {
-    val allDistributorsState by distributorViewModel._allDistributorsState.collectAsState()
-    val recommendationState by distributorViewModel.recommendationState.collectAsState()
+    val allDistributorsState by buyerRecommendationViewModel._allDistributorsState.collectAsState()
+    val recommendationState by buyerRecommendationViewModel.recommendationState.collectAsState()
 
     // State untuk menampilkan dialog logout
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -36,7 +36,7 @@ fun MainScreen(
                 title = { Text("Distributor App") },
                 actions = {
                     // Tombol Refresh Distributor
-                    IconButton(onClick = { distributorViewModel.refreshDistributors() }) {
+                    IconButton(onClick = { buyerRecommendationViewModel.refreshDistributors() }) {
                         Icon(Icons.Filled.Refresh, contentDescription = "Refresh Data")
                     }
                     // Tombol ke Preferences
@@ -44,20 +44,24 @@ fun MainScreen(
                         Icon(Icons.Filled.Settings, contentDescription = "Buka Preferensi")
                     }
                     // Tombol Logout
-                    IconButton(onClick = { showLogoutDialog = true }) {
-                        Icon(Icons.Filled.Logout, contentDescription = "Logout")
-                    }
+                    */
+/*IconButton(onClick = { showLogoutDialog = true }) {
+                        Icon(Icons.Filled.Lo, contentDescription = "Logout")
+                    }*//*
+
                 }
             )
         },
         floatingActionButton = {
             val isLoadingRecommendation = recommendationState is RecommendationUiState.Loading
             ExtendedFloatingActionButton(
-                onClick = { distributorViewModel.getRecommendations() },
+                onClick = { buyerRecommendationViewModel.getRecommendations() },
                 // Nonaktifkan tombol saat sedang loading rekomendasi
                 // enabled = !isLoadingRecommendation, // Ganti jadi modifier di Column nanti
                 text = { Text("Dapatkan Rekomendasi") },
-                icon = { /* Icon */ }
+                icon = { */
+/* Icon *//*
+ }
             )
         }
     ) { paddingValues ->
@@ -123,14 +127,14 @@ fun RecommendationSection(state: RecommendationUiState) {
                 }
             }
             is RecommendationUiState.Success -> {
-                if (state.recommendedDistributors.isEmpty()) {
+                if (state.userDistributionData.isEmpty()) { // what recommendedDistributors ?
                     Text("Tidak ada distributor yang cocok dengan preferensi Anda saat ini.")
                 } else {
                     // Tampilkan hasil rekomendasi (mungkin dalam LazyRow atau Column terbatas)
                     LazyColumn(modifier = Modifier.heightIn(max = 250.dp)) { // Batasi tinggi
-                        items(state.recommendedDistributors) { distributor ->
+                        items(state.userDistributionData) { distributor ->
                             // Gunakan Item yang sama tapi dengan highlight
-                            DistributorItemView(distributor = distributor, isRecommended = true)
+                            DistributorItemView(userDistributionData = distributor, isRecommended = true)
                         }
                     }
                 }
@@ -156,12 +160,12 @@ fun AllDistributorsSection(state: AllDistributorsUiState) {
                 }
             }
             is AllDistributorsUiState.Success -> {
-                if (state.distributors.isEmpty()) {
+                if (state.userDistributionData.isEmpty()) {
                     Text("Tidak ada data distributor.")
                 } else {
                     LazyColumn(modifier = Modifier.weight(1f)) { // Ambil sisa ruang vertikal
-                        items(state.distributors, key = { it.id }) { distributor ->
-                            DistributorItemView(distributor = distributor)
+                        items(state.userDistributionData, key = { it.id }) { distributor ->
+                            DistributorItemView(userDistributionData = distributor)
                         }
                     }
                 }
@@ -169,7 +173,9 @@ fun AllDistributorsSection(state: AllDistributorsUiState) {
             is AllDistributorsUiState.Error -> {
                 Text("Gagal memuat daftar: ${state.message}", color = MaterialTheme.colorScheme.error)
                 // Mungkin tambahkan tombol retry
-                Button(onClick = { /* Panggil refresh dari ViewModel */ }) {
+                Button(onClick = { */
+/* Panggil refresh dari ViewModel *//*
+ }) {
                     Text("Coba Lagi")
                 }
             }
@@ -180,7 +186,7 @@ fun AllDistributorsSection(state: AllDistributorsUiState) {
 
 // Composable terpisah untuk menampilkan item distributor
 @Composable
-fun DistributorItemView(distributor: Distributor, isRecommended: Boolean = false) {
+fun DistributorItemView(userDistributionData: UserDistributionData, isRecommended: Boolean = false) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -191,14 +197,14 @@ fun DistributorItemView(distributor: Distributor, isRecommended: Boolean = false
         )
     ) {
         Column(modifier = Modifier.padding(12.dp).fillMaxWidth()) {
-            Text(distributor.name, style = MaterialTheme.typography.titleMedium)
+            Text(userDistributionData.name, style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(4.dp))
-            Text("Lokasi: ${distributor.location}", style = MaterialTheme.typography.bodyMedium)
-            Text("Kategori: ${distributor.productCategories.joinToString()}", style = MaterialTheme.typography.bodySmall)
+            Text("Lokasi: ${userDistributionData.location}", style = MaterialTheme.typography.bodyMedium)
+            Text("Kategori: ${userDistributionData.productCategories.joinToString()}", style = MaterialTheme.typography.bodySmall)
             Spacer(modifier = Modifier.height(4.dp))
-            Text("Detail: ${distributor.details}", style = MaterialTheme.typography.bodySmall)
+            Text("Detail: ${userDistributionData.details}", style = MaterialTheme.typography.bodySmall)
             // Tambahkan gambar jika ada URL
             // if (distributor.imageUrl != null) { AsyncImage(...) }
         }
     }
-}
+}*/

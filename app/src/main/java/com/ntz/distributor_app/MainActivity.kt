@@ -1,6 +1,7 @@
 package com.ntz.distributor_app
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -14,9 +15,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.ntz.distributor_app.ui.navigation.AppNavigation
+import com.ntz.distributor_app.ui.screens.AgentViewData
+import com.ntz.distributor_app.ui.screens.AgentViewRecommendation
+import com.ntz.distributor_app.ui.screens.LoginScreen
+import com.ntz.distributor_app.ui.screens.ProducenViewData
+import com.ntz.distributor_app.ui.screens.UserViewDecision
 import com.ntz.distributor_app.ui.theme.Distributor_appTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -28,7 +39,57 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppNavigation()
+                    val navController = rememberNavController()
+
+                    NavHost(
+                        navController = navController,
+                        startDestination = "Login"
+                    ){
+                        composable("Login"){
+                            LoginScreen(
+                                onLoginSuccess = {
+                                    Toast.makeText(this@MainActivity, "Login berhasil", Toast.LENGTH_SHORT).show()
+                                    navController.navigate("UserDecision")
+                                },
+                                navController = rememberNavController()
+                            )
+                        }
+
+                        composable("UserDecision"){
+                            UserViewDecision(
+                                navController = rememberNavController()
+                            )
+                        }
+
+                        composable("ProducenRegister"){
+                            ProducenViewData(
+                                navController = rememberNavController()
+                            )
+                        }
+
+                        composable("AgentRegister"){
+                            AgentViewData(
+                                navController = rememberNavController()
+                            )
+                        }
+
+                    }
+                    /*BuyerRecommendation(
+                        onNavigateToPreferences = {
+                            Toast.makeText(this, "Buka preferensi", Toast.LENGTH_SHORT).show()
+                        },
+                        onLogout = {
+                            Toast.makeText(this, "Logout", Toast.LENGTH_SHORT).show()
+                        }
+                    )*/
+
+                    /*LoginScreen(
+                        onLoginSuccess = {
+                            Toast.makeText(this, "Login berhasil", Toast.LENGTH_SHORT).show()
+                        },
+                        navController = rememberNavController()
+                    )*/
+
                 }
             }
         }

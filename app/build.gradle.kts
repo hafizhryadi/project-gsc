@@ -29,6 +29,7 @@ android {
         } else {
             println("Warning: local.properties file not found fo API key")
         }
+
         buildConfigField("String", "GEMINI_API_KEY", "\"${localProperties.getProperty("GEMINI_API_KEY", "")}\"")
     }
 

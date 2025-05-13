@@ -1,14 +1,13 @@
 package com.ntz.distributor_app.data.repository
 
 import android.util.Log
-import com.ntz.distributor_app.data.model.Distributor
+import com.ntz.distributor_app.data.model.UserDistributionData
 import com.ntz.distributor_app.data.model.UserPreferences
 import com.ntz.distributor_app.data.remote.GeminiApiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.log
 
 @Singleton
 class RecommendationRepository @Inject constructor(
@@ -16,9 +15,9 @@ class RecommendationRepository @Inject constructor(
 ) {
     suspend fun getRecommendations(
         preferences: UserPreferences,
-        availableDistributor: List<Distributor>
+        availableUserDistributionData: List<UserDistributionData>
     ): Result<List<String>> = withContext(Dispatchers.IO) {
-        val prompt = buildRecommendationPrompt(preferences, availableDistributor)
+        val prompt = buildRecommendationPrompt(preferences, availableUserDistributionData)
 
         try {
             val response = geminiApiService.generateRecommendation(prompt)
@@ -38,7 +37,7 @@ class RecommendationRepository @Inject constructor(
             Log.i("RecommendationRepository", "Recommendations: $recommendationNames")
 
             val validNames = recommendationNames.filter { recName ->
-                availableDistributor.any {dist -> dist.name.equals(recName, ignoreCase = true)}
+                availableUserDistributionData.any { dist -> dist.name.equals(recName, ignoreCase = true)}
             }
 
             if (validNames.isEmpty() && recommendationNames.isNotEmpty()) {
@@ -57,9 +56,9 @@ class RecommendationRepository @Inject constructor(
 
     private fun buildRecommendationPrompt(
         prefs: UserPreferences,
-        distributor: List<Distributor>
+        userDistributionData: List<UserDistributionData>
     ): String {
-        val distributorListString = distributor.joinToString("\n") {
+        val distributorListString = userDistributionData.joinToString("\n") {
             " - Nama: ${it.name}, Lokasi: ${it.location}, Kategori: ${it.productCategories.joinToString(", ")}, Detail: ${it.details}"
         }
 

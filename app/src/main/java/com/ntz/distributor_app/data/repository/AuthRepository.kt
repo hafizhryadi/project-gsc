@@ -3,6 +3,7 @@ package com.ntz.distributor_app.data.repository
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.compose.runtime.LaunchedEffect
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -15,6 +16,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.ntz.distributor_app.R // Pastikan R diimport dengan benar
+import com.ntz.distributor_app.data.local.UserPreferencesDataStore
 import com.ntz.distributor_app.data.model.User // Model User aplikasi Anda
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.tasks.await // Penting untuk await() pada Task GMS/Firebase
@@ -38,6 +40,9 @@ class AuthRepository @Inject constructor(
         GoogleSignIn.getClient(context, gso)
     }
 
+    // this function used for get current user login, its user done for login or not
+    // but in this function its must know its store permanent or not, because I create preference
+    // so, if permanent, we not use pref datastore
     fun getCurrentUser(): User? {
         return firebaseAuth.currentUser?.toUserModel()
     }
@@ -51,8 +56,7 @@ class AuthRepository @Inject constructor(
     ): Result<User> {
         return try {
             // Tahap 1: Dapatkan GoogleSignInAccount dari GMS Task
-            val account: GoogleSignInAccount = task.getResult(ApiException::class.java)
-                ?: throw ApiException(Status.RESULT_INTERNAL_ERROR) // Safety null check
+            val account: GoogleSignInAccount = task.getResult(ApiException::class.java) ?: throw ApiException(Status.RESULT_INTERNAL_ERROR) // Safety null check
 
             Log.d("AuthRepository", "Google Sign In (GMS) Success: ${account.email}")
 
@@ -73,6 +77,7 @@ class AuthRepository @Inject constructor(
             if (firebaseUser != null) {
                 Log.i("AuthRepository", "Firebase Authentication Success. UID: ${firebaseUser.uid}, Email: ${firebaseUser.email}")
                 Result.success(firebaseUser.toUserModel()) // Kembalikan User model aplikasi
+                // Result.success(firebaseUser.storeDataUserPref())
             } else {
                 Log.e("AuthRepository", "Firebase Authentication failed after GMS success (firebaseUser is null).")
                 Result.failure(Exception("Gagal autentikasi dengan Firebase (user null)."))
@@ -103,10 +108,23 @@ class AuthRepository @Inject constructor(
 
     private fun FirebaseUser.toUserModel(): User? {
         return User(
+            userType = "",
             uid = this.uid,
             email = this.email,
             displayName = this.displayName,
             photoUrl = this.photoUrl?.toString()
+        )
+    }
+
+    suspend private fun FirebaseUser.storeDataUserPref() {
+        return UserPreferencesDataStore(context).saveUser(
+            User(
+                userType = "",
+                uid = this.uid,
+                email = this.email,
+                displayName = this.displayName,
+                photoUrl = this.photoUrl?.toString()
+            )
         )
     }
 }

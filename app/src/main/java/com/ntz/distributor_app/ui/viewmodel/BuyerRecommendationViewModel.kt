@@ -1,9 +1,10 @@
-package com.ntz.distributor_app.ui.viewmodel
 
+package com.ntz.distributor_app.ui.viewmodel
+/*
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ntz.distributor_app.data.model.Distributor
+import com.ntz.distributor_app.data.model.UserDistributionData
 import com.ntz.distributor_app.data.repository.DistributorRepository
 import com.ntz.distributor_app.data.repository.PreferenceRepository
 import com.ntz.distributor_app.data.repository.RecommendationRepository
@@ -15,21 +16,26 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+*/
+/*In here, this view model for show to buyer about recommendation distributor
+**//*
+
+
 sealed interface AllDistributorsUiState {
     object Loading : AllDistributorsUiState
-    data class Success(val distributors: List<Distributor>) : AllDistributorsUiState
+    data class Success(val userDistributionData: List<UserDistributionData>) : AllDistributorsUiState
     data class Error(val message: String, val cause: Throwable? = null) : AllDistributorsUiState
 }
 
 sealed interface RecommendationUiState {
     object Idle : RecommendationUiState
     object Loading : RecommendationUiState
-    data class Success(val distributors: List<Distributor>) : RecommendationUiState
+    data class Success(val userDistributionData: List<UserDistributionData>) : RecommendationUiState
     data class Error(val message: String, val cause: Throwable? = null) : RecommendationUiState
 }
 
 @HiltViewModel
-class DistributorViewModel @Inject constructor(
+class BuyerRecommendationViewModel @Inject constructor(
     private val distributorRepository: DistributorRepository,
     private val preferenceRepository: PreferenceRepository,
     private val recommendationRepository: RecommendationRepository
@@ -40,7 +46,7 @@ class DistributorViewModel @Inject constructor(
     private val _recommendationState = MutableStateFlow<RecommendationUiState>(RecommendationUiState.Idle)
     val recommendationState: StateFlow<RecommendationUiState> = _recommendationState.asStateFlow()
 
-    private var cachedDistributors: List<Distributor> = emptyList()
+    private var cachedUserDistributionData: List<UserDistributionData> = emptyList()
 
     init {
         loadAllDistributors()
@@ -56,7 +62,7 @@ class DistributorViewModel @Inject constructor(
             _allDistributorsState.value = AllDistributorsUiState.Loading
             try {
                 val distributors = distributorRepository.getAllDistributors()
-                cachedDistributors = distributors
+                cachedUserDistributionData = distributors
                 _allDistributorsState.value = AllDistributorsUiState.Success(distributors)
                 Log.i("DistributorViewModel", "Loaded distributors: $distributors")
             } catch (e: Exception) {
@@ -67,7 +73,7 @@ class DistributorViewModel @Inject constructor(
     }
 
     fun getRecommendations() {
-        val currentDistributors = cachedDistributors
+        val currentDistributors = cachedUserDistributionData
         if (currentDistributors.isEmpty()) {
             Log.w("DistributorViewModel", "No distributors available for recommendations.")
             _recommendationState.value = RecommendationUiState.Error("No distributors available for recommendations.")
@@ -86,7 +92,7 @@ class DistributorViewModel @Inject constructor(
                     }
 
                 Log.d("DistributorViewModel", "User preferences: $userPreferences")
-                val recommendationResult = recommendationRepository.getRecommendations(preferences = userPreferences, availableDistributor =  currentDistributors)
+                val recommendationResult = recommendationRepository.getRecommendations(preferences = userPreferences, availableUserDistributionData =  currentDistributors)
 
                 recommendationResult.onSuccess { recommendedNames ->
                     Log.d("DistributorViewModel", "Recommended names: $recommendedNames")
@@ -110,4 +116,4 @@ class DistributorViewModel @Inject constructor(
         _recommendationState.value = RecommendationUiState.Idle
         loadAllDistributors(forceRefresh = true)
     }
-}
+}*/
