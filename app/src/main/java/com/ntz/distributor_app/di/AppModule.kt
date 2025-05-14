@@ -6,9 +6,11 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.ntz.distributor_app.data.local.UserPreferencesDataStore
 import com.ntz.distributor_app.data.remote.GeminiApiService
+import com.ntz.distributor_app.data.repository.AgentRepository
 import com.ntz.distributor_app.data.repository.AuthRepository
-import com.ntz.distributor_app.data.repository.DistributorRepository
-import com.ntz.distributor_app.data.repository.RecommendationRepository
+import com.ntz.distributor_app.firebasedatabase.FirebaseRealtimeAgent
+import com.ntz.distributor_app.firebasedatabase.FirebaseRealtimeAuth
+import com.ntz.distributor_app.firebasedatabase.FirebaseRealtimeProducent
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -41,6 +43,37 @@ object AppModule {
         return Firebase.auth
     }
 
+    // instance Firebase Database agent
+    @Provides
+    @Singleton
+    fun provideFirebaseRealtimeAgent(): FirebaseRealtimeAgent {
+        return FirebaseRealtimeAgent()
+    }
+
+    // instance Firebase Database producent
+    @Provides
+    @Singleton
+    fun provideFirebaseRealtimeProducent(): FirebaseRealtimeProducent {
+        return FirebaseRealtimeProducent()
+    }
+
+    // firebaseRealtimeAuth
+    @Provides
+    @Singleton
+    fun provideFirebaseRealtimeAuth(): FirebaseRealtimeAuth {
+        return FirebaseRealtimeAuth()
+    }
+
+    // AgentViewModel
+    @Provides
+    @Singleton
+    fun provideAgentViewModel() : AgentRepository{
+        return AgentRepository(
+            FirebaseRealtimeAgent()
+        )
+    }
+
+
     // geminiApiService
     @Provides
     @Singleton
@@ -55,16 +88,16 @@ object AppModule {
         return AuthRepository(context)
     }
 
-    @Provides
+   /* @Provides
     @Singleton
     fun provideDistributorRepository(): DistributorRepository {
         return DistributorRepository()
-    }
+    }*/
 
-    @Provides
+    /*@Provides
     @Singleton
     fun provideRecommendationRepository(geminiApiService: GeminiApiService): RecommendationRepository {
         return RecommendationRepository(geminiApiService)
-    }
+    }*/
 
 }

@@ -2,7 +2,6 @@ package com.ntz.distributor_app.data.repository
 
 import com.ntz.distributor_app.data.local.UserPreferencesDataStore
 import com.ntz.distributor_app.data.model.User
-import com.ntz.distributor_app.data.model.UserPreferences
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton

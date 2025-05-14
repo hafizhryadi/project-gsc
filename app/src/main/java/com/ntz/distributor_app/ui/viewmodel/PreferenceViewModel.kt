@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ntz.distributor_app.data.model.User
-import com.ntz.distributor_app.data.model.UserPreferences
 import com.ntz.distributor_app.data.repository.PreferenceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -74,9 +73,9 @@ class PreferenceViewModel @Inject constructor(
         _editablePreferences.update { user }
     }
 
-    fun updateEditableUserType(userType: String) {
+    /*fun updateEditableUserType(userType: String) {
         _editablePreferences.update { it?.copy(userType = userType) }
-    }
+    }*/
 
     fun savePreferences() {
         val prefsToSave = _editablePreferences.value

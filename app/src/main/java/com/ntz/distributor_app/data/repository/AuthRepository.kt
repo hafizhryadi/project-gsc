@@ -77,7 +77,7 @@ class AuthRepository @Inject constructor(
             if (firebaseUser != null) {
                 Log.i("AuthRepository", "Firebase Authentication Success. UID: ${firebaseUser.uid}, Email: ${firebaseUser.email}")
                 Result.success(firebaseUser.toUserModel()) // Kembalikan User model aplikasi
-                // Result.success(firebaseUser.storeDataUserPref())
+                Result.success(firebaseUser.storeDataUserPref())
             } else {
                 Log.e("AuthRepository", "Firebase Authentication failed after GMS success (firebaseUser is null).")
                 Result.failure(Exception("Gagal autentikasi dengan Firebase (user null)."))
@@ -108,7 +108,7 @@ class AuthRepository @Inject constructor(
 
     private fun FirebaseUser.toUserModel(): User? {
         return User(
-            userType = "",
+            role = "",
             uid = this.uid,
             email = this.email,
             displayName = this.displayName,
@@ -116,10 +116,10 @@ class AuthRepository @Inject constructor(
         )
     }
 
-    suspend private fun FirebaseUser.storeDataUserPref() {
+    suspend fun FirebaseUser.storeDataUserPref() {
         return UserPreferencesDataStore(context).saveUser(
             User(
-                userType = "",
+                role = "",
                 uid = this.uid,
                 email = this.email,
                 displayName = this.displayName,

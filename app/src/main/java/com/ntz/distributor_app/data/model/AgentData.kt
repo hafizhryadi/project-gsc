@@ -1,5 +1,8 @@
 package com.ntz.distributor_app.data.model
 
+import com.ntz.distributor_app.data.repository.AuthRepository
+import java.util.UUID
+
 data class AgentData(
     var id: String = "",
     var fullname: String = "",

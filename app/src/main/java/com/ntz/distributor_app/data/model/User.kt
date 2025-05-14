@@ -1,7 +1,7 @@
 package com.ntz.distributor_app.data.model
 
 data class User(
-    val userType : String?,
+    val role : String?,
     val uid: String?,
     val email: String?,
     val displayName: String?,
