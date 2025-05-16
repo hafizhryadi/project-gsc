@@ -5,31 +5,34 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ntz.distributor_app.ui.viewmodel.AuthViewModel
 
 @Composable
-fun Modifier.UserViewDecision(
+fun UserViewDecision(
     authViewModel: AuthViewModel = viewModel(),
-    navController: NavController
+    modifier: Modifier = Modifier,
+    navController : NavController
 ){
     var userDecision by remember { mutableStateOf("") }
 
     Column(
-        modifier = fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -72,12 +75,4 @@ fun Modifier.UserViewDecision(
         }
 
     }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun UserViewDecisionPreview() {
-    Modifier.UserViewDecision(
-        navController = NavController(LocalContext.current)
-    )
 }

@@ -172,36 +172,8 @@ fun AgentViewData(
    }
 }
 
-// add preview
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true,showSystemUi = true)
 @Composable
-fun AgentRegisterPreview() {
-    var id by remember { mutableStateOf(FirebaseAuth.getInstance().currentUser?.uid ?: "") }
-    var fullname by remember { mutableStateOf("") }
-    var nickname by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf(FirebaseAuth.getInstance().currentUser?.email ?: "") }
-    var phoneNumber by remember { mutableStateOf("") }
-    var country by remember { mutableStateOf("Indonesia") }
-    var gender by remember { mutableStateOf("") }
-    var address by remember { mutableStateOf("") }
-    var city by remember { mutableStateOf("") }
-    var regency by remember { mutableStateOf("") }
-
-    AgentViewData(
-        navController = NavController(LocalContext.current),
-        agentViewModel = FirebaseRealtimeAgent().apply {
-            setAgentData(
-                userId = id,
-                fullname = fullname,
-                nickname = nickname,
-                email = email,
-                phoneNumber = phoneNumber,
-                country = country,
-                gender = gender,
-                address = address,
-                city = city,
-                regency = regency
-            )
-        }
-    )
+fun AgentRegisterPreview(){
+    AgentViewData(navController = NavController(LocalContext.current))
 }
