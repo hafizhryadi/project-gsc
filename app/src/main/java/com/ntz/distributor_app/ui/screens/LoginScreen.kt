@@ -86,7 +86,7 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxHeight()
-                .wrapContentHeight(Alignment.Bottom)
+                .wrapContentHeight(Alignment.CenterVertically)
                 .padding(20.dp)
         ) {
             Image(

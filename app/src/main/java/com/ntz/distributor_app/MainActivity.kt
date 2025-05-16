@@ -61,7 +61,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable("UserDecision"){
-                            UserViewDecision(
+                            Modifier.UserViewDecision(
                                 navController = navController
                             )
                         }
