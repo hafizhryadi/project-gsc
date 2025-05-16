@@ -1,5 +1,6 @@
 package com.ntz.distributor_app.firebasedatabase
 
+import android.util.Log
 import com.google.firebase.Firebase
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.database
@@ -15,9 +16,7 @@ class FirebaseRealtimeAuth {
         role : String?,
         email: String?,
         displayName: String?,
-        photoUrl: String?,
-        onSuccess: () -> Unit,
-        onFailure: (Exception) -> Unit
+        photoUrl: String?
     ){
         val dataMap = mapOf(
            User::uid.name to uid,
@@ -29,10 +28,10 @@ class FirebaseRealtimeAuth {
 
         firebaseInitAuth().child("users").child(uid ?: "").setValue(dataMap)
             .addOnSuccessListener {
-                onSuccess()
+                Log.d("FirebaseRealtimeDatabaseAuthRepository", "Data added successfully")
             }
             .addOnFailureListener {
-                onFailure(it)
+                Log.e("FirebaseRealtimeDatabaseAuthRepository", "Error adding data: ${it.message}")
             }
     }
 }

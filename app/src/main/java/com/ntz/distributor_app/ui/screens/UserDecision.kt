@@ -18,10 +18,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.ntz.distributor_app.ui.viewmodel.AuthViewModel
 
 @Composable
 fun UserViewDecision(
+    authViewModel: AuthViewModel = viewModel(),
     modifier: Modifier = Modifier,
     navController : NavController
 ){
@@ -39,8 +42,8 @@ fun UserViewDecision(
         Button(
             onClick = {
                 userDecision = "Producen"
+                authViewModel.updateRole("produsen")
                 navController.navigate("ProducenRegister")
-                // update userType at here
             }
         ) {
             Text("Produsen")
@@ -49,11 +52,26 @@ fun UserViewDecision(
         Button(
             onClick = {
                 userDecision = "Agent"
+                authViewModel.updateRole("agent")
                 navController.navigate("AgentRegister")
-                // update userType at here
+
             }
         ) {
             Text("Agen")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = {
+                AuthViewModel().signOut(
+                    onSuccess = {
+                        navController.navigate("Login")
+                    }
+                )
+            }
+        ) {
+            Text("Sign Out, Test")
         }
 
     }

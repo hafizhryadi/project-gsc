@@ -1,5 +1,7 @@
 package com.ntz.distributor_app.ui.screens
 
+import android.app.Activity
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -14,39 +16,58 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.google.android.gms.common.SignInButton // Tombol Google Sign In Bawaan
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.ntz.distributor_app.R
-import com.ntz.distributor_app.ui.navigation.AppNavigation
-import com.ntz.distributor_app.ui.viewmodel.AuthUiState
 import com.ntz.distributor_app.ui.viewmodel.AuthViewModel
+import com.ntz.distributor_app.ui.viewmodel.SignInState
 
 @Composable
 fun LoginScreen(
-    authViewModel: AuthViewModel = hiltViewModel(),
-    onLoginSuccess: () -> Unit, // Callback setelah login berhasil
+    authViewModel: AuthViewModel = viewModel(),
+    onLoginSuccess: (String) -> Unit,
     navController: NavController
 ) {
     val context = LocalContext.current
-    val uiState by authViewModel.uiState.collectAsState()
+    val uiState by authViewModel.signInState.collectAsState()
+
+    val googleSignInOption = remember {
+        GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(context.getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+    }
+
+    val googleSignInClient = remember{
+        GoogleSignIn.getClient(context, googleSignInOption)
+    }
 
     // Launcher untuk menerima hasil dari Google Sign In Intent
     val googleSignInLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
         onResult = { result ->
-            // Kirim hasil ke ViewModel untuk diproses
-            authViewModel.handleSignInResult(result)
+            if(result.resultCode == Activity.RESULT_OK){
+                val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+                try{
+                    val account = task.getResult(ApiException::class.java)
+                    account?.idToken?.let{ token ->
+                        authViewModel.signInWithGoogle(token)
+                    } ?: run{
+                        Log.e("LoginScreen", "ID Token is null")
+                    }
+                } catch (e : ApiException){
+                    Log.e("LoginScreen", "Google sign in failed", e)
+                }
+            } else if(result.resultCode == Activity.RESULT_CANCELED) {
+                Log.w("LoginScreen", "Google sign in canceled by user")
+            } else {
+                Log.e("LoginScreen", "Unknown result code: ${result.resultCode}")
+            }
         }
     )
-
-    // Efek samping untuk memanggil onLoginSuccess saat state berubah jadi SignedIn
-    LaunchedEffect(uiState) {
-        if (uiState is AuthUiState.SignedIn) {
-            onLoginSuccess()
-        }
-    }
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -85,33 +106,37 @@ fun LoginScreen(
 
 
             when (val state = uiState) {
-                is AuthUiState.Loading -> {
+                is SignInState.Idle -> {
+                    Button(onClick = {
+                        googleSignInClient.signOut().addOnCompleteListener {
+                            googleSignInLauncher.launch(googleSignInClient.signInIntent)
+                        }
+                    }){
+                        Text("Login Dengan Google")
+                    }
+                }
+                is SignInState.Loading -> {
                     CircularProgressIndicator()
                     Spacer(modifier = Modifier.height(16.dp))
                     Text("Memproses...")
                 }
-                is AuthUiState.SignedOut, is AuthUiState.Error -> {
-                    Button(
-                        onClick = {
-                            val signInIntent = authViewModel.getSignInIntent()
-                            googleSignInLauncher.launch(signInIntent)
-                        },
-                        enabled = state !is AuthUiState.Loading, // Nonaktifkan saat loading
-                        modifier = Modifier
-                            .padding(top = 16.dp)
-                            .fillMaxWidth()
-                    ) {
-                        // Anda bisa menambahkan ikon Google di sini
-                        Text("Login dengan Google")
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-                    if (state is AuthUiState.Error) {
-                        Text("Error: ${state.message}", color = MaterialTheme.colorScheme.error)
+                is SignInState.Success -> {
+                    LaunchedEffect(Unit) {
+                        onLoginSuccess(state.user.uid)
                     }
                 }
-                is AuthUiState.SignedIn -> {
-                    navController.navigate("UserDecision")
+
+                is SignInState.Error -> {
+                    Text("Login Gagal, Silahkan ulangi kembali")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = {
+                        authViewModel.resetState()
+                        googleSignInClient.signOut().addOnCompleteListener {
+                            googleSignInLauncher.launch(googleSignInClient.signInIntent)
+                        }
+                    }) {
+                        Text("Coba Lagi")
+                    }
                 }
             }
         }

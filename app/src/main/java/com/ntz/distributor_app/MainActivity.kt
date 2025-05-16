@@ -19,6 +19,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.ntz.distributor_app.ui.navigation.AppNavigation
+import com.ntz.distributor_app.ui.screens.AgentMainActivityView
 import com.ntz.distributor_app.ui.screens.AgentViewData
 import com.ntz.distributor_app.ui.screens.AgentViewRecommendation
 import com.ntz.distributor_app.ui.screens.LoginScreen
@@ -51,25 +52,31 @@ class MainActivity : ComponentActivity() {
                                     Toast.makeText(this@MainActivity, "Login berhasil", Toast.LENGTH_SHORT).show()
                                     navController.navigate("UserDecision")
                                 },
-                                navController = rememberNavController()
+                                navController = navController
                             )
                         }
 
                         composable("UserDecision"){
                             UserViewDecision(
-                                navController = rememberNavController()
+                                navController = navController
                             )
                         }
 
                         composable("ProducenRegister"){
                             ProducenViewData(
-                                navController = rememberNavController()
+                                navController = navController
                             )
                         }
 
                         composable("AgentRegister"){
                             AgentViewData(
-                                navController = rememberNavController()
+                                navController = navController
+                            )
+                        }
+
+                        composable("PreferenceProducefindAgent"){
+                            AgentMainActivityView(
+                                navController = navController
                             )
                         }
 

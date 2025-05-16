@@ -1,15 +1,13 @@
-package com.ntz.distributor_app.data.remote
+package com.ntz.distributor_app.data.gemini
 
 import android.util.Log
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.GenerateContentResponse
 import com.google.ai.client.generativeai.type.InvalidAPIKeyException
 import com.ntz.distributor_app.BuildConfig
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class GeminiApiService @Inject constructor() {
+
+class GeminiApiService{
     private var generativeModel: GenerativeModel? = null
 
     init {

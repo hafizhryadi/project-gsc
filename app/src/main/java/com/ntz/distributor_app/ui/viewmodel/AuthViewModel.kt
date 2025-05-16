@@ -1,125 +1,107 @@
 package com.ntz.distributor_app.ui.viewmodel
 
-import android.app.Activity
-import android.content.Intent
 import android.util.Log
-import androidx.activity.result.ActivityResult
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.auth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.database
 import com.ntz.distributor_app.data.model.User
-import com.ntz.distributor_app.data.repository.AuthRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import kotlinx.coroutines.tasks.await
 
-sealed interface AuthUiState {
-    object Loading : AuthUiState
-    object SignedOut : AuthUiState
-    data class SignedIn(val user: User) : AuthUiState
-    data class Error(val message: String, val cause: Throwable? = null) : AuthUiState
+sealed class SignInState{
+    object Idle : SignInState()
+    object Loading : SignInState()
+    data class Success(val user: FirebaseUser) : SignInState()
+    data class Error(val message: String) : SignInState()
 }
+class AuthViewModel : ViewModel(){
 
-@HiltViewModel
-class AuthViewModel @Inject constructor(
-    private val authRepository: AuthRepository
-): ViewModel() {
-    // StateFlow untuk menyimpan dan mengamati state UI autentikasi
-    private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.Loading)
-    val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
+    private val auth : FirebaseAuth = Firebase.auth
+    private val database : DatabaseReference = Firebase.database.reference
 
-    init {
-        // Cek status login pengguna saat ViewModel diinisialisasi
-        checkCurrentUser()
-    }
+    private val _signInState = MutableStateFlow<SignInState>(SignInState.Idle)
+    val signInState : StateFlow<SignInState> = _signInState
 
-    /**
-     * Memeriksa apakah ada pengguna yang saat ini login (sesi aktif).
-     */
-    private fun checkCurrentUser() {
-        val currentUser = authRepository.getCurrentUser() // Dapatkan user dari repository
-        if (currentUser != null) {
-            Log.i("AuthViewModel", "Pengguna sudah login (Firebase): UID ${currentUser.uid}")
-            _uiState.value = AuthUiState.SignedIn(currentUser)
-        } else {
-            Log.i("AuthViewModel", "Tidak ada pengguna yang login (Firebase).")
-            _uiState.value = AuthUiState.SignedOut
+    init{
+        if(auth.currentUser != null){
+            _signInState.value = SignInState.Success(auth.currentUser!!)
         }
     }
 
-    /**
-     * Mendapatkan Intent yang akan digunakan untuk memulai alur Google Sign In.
-     */
-    fun getSignInIntent(): Intent {
-        return authRepository.getSignInClient()
-    }
-
-    /**
-     * Menangani hasil dari Activity Google Sign In.
-     * @param result Hasil dari Activity Google Sign In.
-     */
-    fun handleSignInResult(result: ActivityResult) {
-        // Cek apakah hasilnya OK sebelum memproses lebih lanjut
-        if (result.resultCode == Activity.RESULT_OK) {
-            // Dapatkan task untuk mengambil akun Google dari data Intent
-            val signInTask: com.google.android.gms.tasks.Task<GoogleSignInAccount> =
-                GoogleSignIn.getSignedInAccountFromIntent(result.data)
-
-            viewModelScope.launch {
-                _uiState.value = AuthUiState.Loading // Set state ke loading
-                // Panggil fungsi di repository untuk memproses hasil GMS dan login ke Firebase
-                val firebaseLoginResult = authRepository.handleSignInResultAndLoginFirebase(signInTask)
-
-                firebaseLoginResult.onSuccess { user ->
-                    Log.i("AuthViewModel", "Login Firebase berhasil: UID ${user.uid}")
-                    _uiState.value = AuthUiState.SignedIn(user) // Update state ke SignedIn
-                }.onFailure { exception ->
-                    Log.e("AuthViewModel", "Login Firebase gagal", exception)
-                    _uiState.value = AuthUiState.Error(
-                        "Login Gagal: ${exception.localizedMessage ?: "Error tidak diketahui"}",
-                        exception
-                    )
-                    // Opsional: kembali ke SignedOut setelah error agar UI bisa reset
-                    // kotlinx.coroutines.delay(1000)
-                    // _uiState.value = AuthUiState.SignedOut
-                }
-            }
-        } else {
-            // Handle jika pengguna membatalkan Google Sign-In atau terjadi error sebelum pemilihan akun
-            Log.w("AuthViewModel", "Login Google dibatalkan atau gagal sebelum pemilihan akun. Kode Hasil: ${result.resultCode}")
-            // Hanya update ke SignedOut jika state saat ini bukan Loading (untuk menghindari kedipan UI)
-            if (_uiState.value !is AuthUiState.Loading) {
-                _uiState.value = AuthUiState.SignedOut
-            }
-            // Atau tampilkan pesan error spesifik jika resultCode mengindikasikan error tertentu
-            // _uiState.value = AuthUiState.Error("Login Google dibatalkan oleh pengguna.")
-        }
-    }
-
-    /**
-     * Melakukan proses logout pengguna.
-     */
-    fun signOut() {
+    fun signInWithGoogle(idToken : String){
         viewModelScope.launch {
-            _uiState.value = AuthUiState.Loading // Set state ke loading
-            val result = authRepository.signOut() // Panggil fungsi signOut di repository
-            result.onSuccess {
-                Log.i("AuthViewModel", "Logout berhasil.")
-                _uiState.value = AuthUiState.SignedOut // Update state ke SignedOut
-            }.onFailure { exception ->
-                Log.e("AuthViewModel", "Logout gagal", exception)
-                _uiState.value = AuthUiState.Error(
-                    "Logout Gagal: ${exception.localizedMessage ?: "Error tidak diketahui"}",
-                    exception
-                )
-                // Pertimbangkan untuk tetap mengarahkan ke SignedOut meskipun ada error di server
-                // agar pengguna tidak terjebak di state yang salah.
-                _uiState.value = AuthUiState.SignedOut
+            _signInState.value = SignInState.Loading
+
+            try{
+                val credential = GoogleAuthProvider.getCredential(idToken, null)
+                val authResult = auth.signInWithCredential(credential).await()
+                authResult.user?.let{ firebaseUser ->
+                    // save user data to realtime database
+                    saveUserDataToRealtimeDatabase(firebaseUser)
+                    _signInState.value = SignInState.Success(firebaseUser)
+                    Log.d("AuthViewModel", "User data saved to Realtime Database")
+                } ?: run{
+                    _signInState.value = SignInState.Error("User data is null")
+                    Log.e("AuthViewModel", "User data is null")
+                }
+            } catch (e : Exception){
+                _signInState.value = SignInState.Error(e.message ?: "Unknown error")
+                Log.e("AuthViewModel", "Error signing in with Google: ${e.message}")
             }
         }
     }
+
+    fun signOut(onSuccess : () -> Unit){
+        try{
+            auth.signOut()
+            onSuccess()
+            _signInState.value = SignInState.Idle
+        } catch (e : Exception){
+            _signInState.value = SignInState.Error(e.message ?: "Unknown error")
+        }
+    }
+
+
+    private suspend fun saveUserDataToRealtimeDatabase(user: FirebaseUser) {
+        val userData = User(
+            uid = user.uid,
+            displayName = user.displayName,
+            email = user.email,
+            photoUrl = user.photoUrl?.toString(),
+            role = "belum_dipilih"
+        )
+
+        try{
+            database.child("users").child(user.uid).setValue(userData).await()
+            Log.d("AuthViewModel", "User data saved to Realtime Database")
+        } catch (e : Exception){
+            Log.e("AuthViewModel", "Error saving user data to Realtime Database: ${e.message}")
+        }
+    }
+
+    fun updateRole(role : String){
+        database.child("users").child(Firebase.auth.currentUser?.uid ?: "").child("role").setValue(role)
+            .addOnSuccessListener {
+                _signInState.value = SignInState.Success(auth.currentUser!!)
+                Log.d("FirebaseRealtimeAgent", "Role updated successfully")
+            }
+            .addOnFailureListener {
+                _signInState.value = SignInState.Error("Error updating role: ${it.message}")
+                Log.e("FirebaseRealtimeAgent", "Error updating role: ${it.message}")
+            }
+    }
+
+    fun resetState(){
+        _signInState.value = SignInState.Idle
+    }
+
 }

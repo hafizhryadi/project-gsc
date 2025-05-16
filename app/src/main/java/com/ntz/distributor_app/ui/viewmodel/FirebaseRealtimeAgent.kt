@@ -1,5 +1,7 @@
-package com.ntz.distributor_app.firebasedatabase
+package com.ntz.distributor_app.ui.viewmodel
 
+import android.util.Log
+import androidx.lifecycle.ViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.DataSnapshot
@@ -8,6 +10,9 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 import com.ntz.distributor_app.data.model.AgentData
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.tasks.await
 
 /**
  * A class that acts as an agent for interacting with Firebase Realtime Database,
@@ -19,8 +24,20 @@ import com.ntz.distributor_app.data.model.AgentData
  * - getAgentData()
  * - updateAgentData()
  */
-class FirebaseRealtimeAgent {
 
+sealed class AgentState{
+    object Idle : AgentState()
+    object Loading : AgentState()
+    data class Success(val user: AgentData) : AgentState()
+    data class Error(val message: String) : AgentState()
+}
+
+class FirebaseRealtimeAgent : ViewModel(){
+
+    var _agentState = MutableStateFlow<AgentState>(AgentState.Idle)
+    val agentState : StateFlow<AgentState> = _agentState
+
+    var userData : MutableStateFlow<MutableList<AgentData>> = MutableStateFlow(mutableListOf())
 
     fun firebaseInitAgent() : DatabaseReference{
         return Firebase.database.reference
@@ -43,10 +60,8 @@ class FirebaseRealtimeAgent {
         gender: String = "",
         address: String = "",
         city: String = "",
-        regency: String = "",
-        onSuccess: () -> Unit,
-        onFailure: (Exception) -> Unit)
-    {
+        regency: String = ""
+    ){
         val dataMap = mapOf(
             AgentData::id.name to userId,
             AgentData::fullname.name to fullname,
@@ -65,23 +80,22 @@ class FirebaseRealtimeAgent {
             .addOnSuccessListener {
                 firebaseInitAgent().child("agents").child(userId).setValue(dataMap)
                     .addOnSuccessListener {
-                        onSuccess()
+                        _agentState.value = AgentState.Success(dataMap as AgentData)
+                        Log.d("FirebaseRealtimeAgent", "Agent data set successfully")
                     }
                     .addOnFailureListener {
-                        onFailure(it)
+                        _agentState.value = AgentState.Error("Error setting agent data: ${it.message}")
+                        Log.e("FirebaseRealtimeAgent", "Error setting agent data: ${it.message}")
                     }
             }
             .addOnFailureListener {
-                onFailure(it)
+                _agentState.value = AgentState.Error("Error setting user role: ${it.message}")
+                Log.e("FirebaseRealtimeAgent", "Error setting user role: ${it.message}")
             }
     }
 
-    fun getAgentData(
-        userId: String = getUidandEmailUser().first,
-        onSuccess: (List<AgentData>) -> List<AgentData>,
-        onFailure: (Exception) -> Unit
-    ){
-        firebaseInitAgent().child("agents").child(userId).addValueEventListener(object : ValueEventListener {
+    fun getAgentData() {
+        firebaseInitAgent().child("agents").child(getUidandEmailUser().first).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val userDataList : MutableList<AgentData> = mutableListOf()
                 snapshot.children.forEach {
@@ -90,11 +104,13 @@ class FirebaseRealtimeAgent {
                         userDataList.add(it)
                     }
                 }
-                onSuccess(userDataList)
+                userData.value = userDataList
+                Log.d("FirebaseRealtimeAgent", "AgentData: $userDataList")
             }
 
             override fun onCancelled(error: DatabaseError) {
-                onFailure(error.toException())
+                _agentState.value = AgentState.Error("Error getting agent data: ${error.message}")
+                Log.e("FirebaseRealtimeAgent", "Error getting agent data: ${error.message}")
             }
 
         })
@@ -110,9 +126,7 @@ class FirebaseRealtimeAgent {
         gender: String? = null,
         address: String? = null,
         city: String? = null,
-        regency: String? = null,
-        onSuccess: () -> Unit,
-        onFailure: (Exception) -> Unit
+        regency: String? = null
     ) {
         val updates = mutableMapOf<String, Any>()
         fullname?.let { updates[AgentData::fullname.name] = it }
@@ -129,14 +143,17 @@ class FirebaseRealtimeAgent {
             .addOnSuccessListener {
                 firebaseInitAgent().child("users").child(userId).updateChildren(updates)
                     .addOnSuccessListener {
-                        onSuccess()
+                        _agentState.value = AgentState.Success(updates as AgentData)
+                        Log.d("FirebaseRealtimeAgent", "Agent data updated successfully")
                     }
                     .addOnFailureListener {
-                        onFailure(it)
+                        _agentState.value = AgentState.Error("Error updating agent data: ${it.message}")
+                        Log.e("FirebaseRealtimeAgent", "Error updating agent data: ${it.message}")
                     }
             }
             .addOnFailureListener {
-                onFailure(it)
+                _agentState.value = AgentState.Error("Error updating user role: ${it.message}")
+                Log.e("FirebaseRealtimeAgent", "Error updating user role: ${it.message}")
             }
     }
 

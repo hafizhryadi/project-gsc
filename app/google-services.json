@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "866843688728",
+    "firebase_url": "https://distributor-app-53bca-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "distributor-app-53bca",
     "storage_bucket": "distributor-app-53bca.firebasestorage.app"
   },
@@ -13,6 +14,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "866843688728-o95a9kjd1us9bvjfh1lsvfcbma3j4atn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ntz.distributor_app",
+            "certificate_hash": "81005041f1463074a713fec5b7f20f419c08b2a9"
+          }
+        },
         {
           "client_id": "866843688728-hi19la6co6viaam6v57ccums0kp54468.apps.googleusercontent.com",
           "client_type": 3

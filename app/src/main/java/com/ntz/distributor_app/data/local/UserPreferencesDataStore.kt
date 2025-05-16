@@ -75,7 +75,7 @@ class UserPreferencesDataStore @Inject constructor(context: Context) {
 
     suspend fun saveUser(user: User) {
         dataStore.edit { preferences ->
-            preferences[PreferencesKeys.PREF_USER_TYPE] = user.userType ?: ""
+            preferences[PreferencesKeys.PREF_USER_TYPE] = user.role ?: ""
             preferences[PreferencesKeys.PREF_USER_ID] = user.uid ?: ""
             preferences[PreferencesKeys.PREF_USER_NAME] = user.displayName ?: ""
             preferences[PreferencesKeys.PREF_USER_EMAIL] = user.email ?: ""
@@ -91,7 +91,7 @@ class UserPreferencesDataStore @Inject constructor(context: Context) {
 
     suspend fun updateDataUser(userData : User){
         dataStore.edit { preferences ->
-            preferences[PreferencesKeys.PREF_USER_TYPE] = userData.userType ?: ""
+            preferences[PreferencesKeys.PREF_USER_TYPE] = userData.role ?: ""
             preferences[PreferencesKeys.PREF_USER_ID] = userData.uid ?: ""
             preferences[PreferencesKeys.PREF_USER_NAME] = userData.displayName ?: ""
             preferences[PreferencesKeys.PREF_USER_EMAIL] = userData.email ?: ""
