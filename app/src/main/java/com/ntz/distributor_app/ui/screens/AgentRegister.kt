@@ -172,8 +172,11 @@ fun AgentViewData(
    }
 }
 
-@Preview(showBackground = true,showSystemUi = true)
+// add preview
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun AgentRegisterPreview(){
-    AgentViewData(navController = NavController(LocalContext.current))
+fun AgentRegisterPreview() {
+    AgentViewData(
+        navController = NavController(LocalContext.current)
+    )
 }
