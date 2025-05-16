@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -42,133 +43,133 @@ fun AgentViewData(
     var city by remember { mutableStateOf("") }
     var regency by remember { mutableStateOf("") }
 
-    // in here is a for data
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Text("Nama Panjang")
-        TextField(
-            value = fullname,
-            onValueChange = { fullname = it },
-            label = { Text("Nama Panjang") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+   LazyColumn(
+       modifier = Modifier
+           .fillMaxSize()
+           .padding(16.dp)
+   ) {
+       item {
+           Text("Nama Panjang")
+           TextField(
+               value = fullname,
+               onValueChange = { fullname = it },
+               label = { Text("Nama Panjang") },
+               modifier = Modifier.fillMaxWidth()
+           )
+           Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Nama Panggilan")
-        TextField(
-            value = nickname,
-            onValueChange = { nickname = it },
-            label = { Text("Nama Panggilan") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+           Text("Nama Panggilan")
+           TextField(
+               value = nickname,
+               onValueChange = { nickname = it },
+               label = { Text("Nama Panggilan") },
+               modifier = Modifier.fillMaxWidth()
+           )
+           Spacer(modifier = Modifier.height(16.dp))
 
-        // for email, get from firebase
-        Text("Email")
-        TextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+           // for email, get from firebase
+           Text("Email")
+           TextField(
+               value = email,
+               onValueChange = { email = it },
+               label = { Text("Email") },
+               modifier = Modifier.fillMaxWidth()
+           )
+           Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Nomor Telepon")
-        TextField(
-            value = phoneNumber,
-            onValueChange = { phoneNumber = it },
-            label = { Text("Nomor Telepon") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+           Text("Nomor Telepon")
+           TextField(
+               value = phoneNumber,
+               onValueChange = { phoneNumber = it },
+               label = { Text("Nomor Telepon") },
+               modifier = Modifier.fillMaxWidth()
+           )
+           Spacer(modifier = Modifier.height(16.dp))
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-            ) {
-                Text("Negara")
-                TextField(
-                    value = country,
-                    onValueChange = { country = it },
-                    label = { Text("Negara") },
-                    readOnly = true,
-                )
-            }
+           Row(
+               modifier = Modifier.fillMaxWidth()
+           ) {
+               Column(
+                   modifier = Modifier.weight(1f)
+               ) {
+                   Text("Negara")
+                   TextField(
+                       value = country,
+                       onValueChange = { country = it },
+                       label = { Text("Negara") },
+                       readOnly = true,
+                   )
+               }
 
-            Spacer(modifier = Modifier.padding(start = 10.dp))
+               Spacer(modifier = Modifier.padding(start = 10.dp))
 
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-            ){
-                Text("Jenis Kelamin")
-                TextField(
-                    value = gender,
-                    onValueChange = { gender = it },
-                    label = { Text("Jenis Kelamin") }
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(16.dp))
+               Column(
+                   modifier = Modifier
+                       .weight(1f)
+               ){
+                   Text("Jenis Kelamin")
+                   TextField(
+                       value = gender,
+                       onValueChange = { gender = it },
+                       label = { Text("Jenis Kelamin") }
+                   )
+               }
+           }
+           Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Alamat")
-        TextField(
-            value = address,
-            onValueChange = { address = it },
-            label = { Text("Alamat") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+           Text("Alamat")
+           TextField(
+               value = address,
+               onValueChange = { address = it },
+               label = { Text("Alamat") },
+               modifier = Modifier.fillMaxWidth()
+           )
+           Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Kota")
-        TextField(
-            value = city,
-            onValueChange = { city = it },
-            label = { Text("Kota") },
-            modifier = Modifier.fillMaxWidth()
-        )
+           Text("Kota")
+           TextField(
+               value = city,
+               onValueChange = { city = it },
+               label = { Text("Kota") },
+               modifier = Modifier.fillMaxWidth()
+           )
 
-        Spacer(modifier = Modifier.height(16.dp))
+           Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Kabupaten")
-        TextField(
-            value = regency,
-            onValueChange = { regency = it },
-            label = { Text("Regency") },
-            modifier = Modifier.fillMaxWidth()
-        )
+           Text("Kabupaten")
+           TextField(
+               value = regency,
+               onValueChange = { regency = it },
+               label = { Text("Regency") },
+               modifier = Modifier.fillMaxWidth()
+           )
 
-        Button(
-            onClick = {
-                agentViewModel.setAgentData(
-                    userId = id,
-                    fullname = fullname,
-                    nickname = nickname,
-                    email = email,
-                    phoneNumber = phoneNumber,
-                    country = country,
-                    gender = gender,
-                    address = address,
-                    city = city,
-                    regency = regency
-                )
-                navController.navigate("PreferenceProducefindAgent")
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
-        ) {
-            Text("Simpan")
-        }
+           Spacer(modifier = Modifier.height(16.dp))
 
-    }
+           Button(
+               onClick = {
+                   agentViewModel.setAgentData(
+                       userId = id,
+                       fullname = fullname,
+                       nickname = nickname,
+                       email = email,
+                       phoneNumber = phoneNumber,
+                       country = country,
+                       gender = gender,
+                       address = address,
+                       city = city,
+                       regency = regency
+                   )
+                   navController.navigate("PreferenceProducefindAgent")
+               },
+               modifier = Modifier
+                   .fillMaxWidth()
+                   .height(50.dp)
+           ) {
+               Text("Simpan")
+           }
+       }
+   }
 }
 
 @Preview(showBackground = true,showSystemUi = true)

@@ -1,5 +1,7 @@
-package com.ntz.distributor_app.firebasedatabase
+package com.ntz.distributor_app.ui.viewmodel
 
+import android.util.Log
+import androidx.lifecycle.ViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.DataSnapshot
@@ -9,9 +11,24 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 import com.ntz.distributor_app.data.model.ProducenData
 import com.ntz.distributor_app.data.model.ProducentProductData
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.util.UUID
 
-class FirebaseRealtimeProducent {
+sealed class ProducentState{
+    object Idle : ProducentState()
+    object Loading : ProducentState()
+    data class Success(val user: ProducenData) : ProducentState()
+    data class Error(val message: String) : ProducentState()
+}
+
+class FirebaseRealtimeProducent : ViewModel() {
+
+    var _producentState = MutableStateFlow<ProducentState>(ProducentState.Idle)
+    val producentState : StateFlow<ProducentState> = _producentState
+
+    val productListData = MutableStateFlow<List<ProducentProductData>>(emptyList())
+
 
     fun firebaseInitProducent() : DatabaseReference {
         return Firebase.database.reference
@@ -35,9 +52,7 @@ class FirebaseRealtimeProducent {
         address: String = "",
         city: String = "",
         regency: String = "",
-        product: Map<String, Any> = emptyMap(),
-        onSuccess: () -> Unit,
-        onFailure: (Exception) -> Unit
+        product: Map<String, Any> = emptyMap()
     ){
         val dataMap = mapOf(
             ProducenData::id.name to id,
@@ -53,30 +68,23 @@ class FirebaseRealtimeProducent {
             ProducenData::product.name to product
         )
 
-        firebaseInitProducent().child("users").child(id).child("role").setValue("producent")
+        firebaseInitProducent().child("produsens").child(id).setValue(dataMap)
             .addOnSuccessListener {
-                firebaseInitProducent().child("produsens").child(id).setValue(dataMap)
-                    .addOnSuccessListener {
-                        onSuccess()
-                    }
-                    .addOnFailureListener {
-                        onFailure(it)
-                    }
+                Log.d("FirebaseRealtimeProducent", "Producent data set successfully")
             }
             .addOnFailureListener {
-                onFailure(it)
+                _producentState.value = ProducentState.Error("Error setting producent data: ${it.message}")
+                Log.e("FirebaseRealtimeProducent", "Error setting producent data: ${it.message}")
             }
     }
 
     fun setProduct(
-        id: String = "",
+        id: String = getUidandEmailUser().first,
         stuffName : String = "",
         category : String = "",
         price : String = "",
         description : String = "",
-        photo : String = "",
-        onSuccess: () -> Unit,
-        onFailure: (Exception) -> Unit
+        photo : String = ""
     ){
         val productRef = firebaseInitProducent().child("produsens").child(id).child("products").push()
         val productId = productRef.key ?: UUID.randomUUID().toString().replace("-", "")
@@ -92,14 +100,15 @@ class FirebaseRealtimeProducent {
 
         productRef.setValue(productData)
             .addOnSuccessListener {
-                onSuccess()
+                Log.d("FirebaseRealtimeProducent", "Product data set successfully")
             }
             .addOnFailureListener {
-                onFailure(it)
+                _producentState.value = ProducentState.Error("Error setting product data: ${it.message}")
+                Log.e("FirebaseRealtimeProducent", "Error setting product data: ${it.message}")
             }
     }
 
-    fun getProduct(producentId : String, onSuccess: (List<ProducentProductData>) -> List<ProducentProductData>, onFailure: (Exception) -> Unit){
+    fun getProduct(producentId : String){
         firebaseInitProducent().child("produsens").child(producentId).child("products")
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -110,11 +119,12 @@ class FirebaseRealtimeProducent {
                             productList.add(it)
                         }
                     }
-                    onSuccess(productList)
+                    productListData.value = productList
+                    Log.d("FirebaseRealtimeProducent", "ProductData: $productList")
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    onFailure(error.toException())
+                    _producentState.value = ProducentState.Error("Error getting product data: ${error.message}")
                 }
 
             })
