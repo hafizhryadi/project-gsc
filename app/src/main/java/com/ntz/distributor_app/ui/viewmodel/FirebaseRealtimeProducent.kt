@@ -82,7 +82,7 @@ class FirebaseRealtimeProducent : ViewModel() {
         id: String = getUidandEmailUser().first,
         stuffName : String = "",
         category : String = "",
-        price : String = "",
+        price : Double = 0.0,
         description : String = "",
         photo : String = ""
     ){
@@ -107,6 +107,7 @@ class FirebaseRealtimeProducent : ViewModel() {
                 Log.e("FirebaseRealtimeProducent", "Error setting product data: ${it.message}")
             }
     }
+
 
     fun getProduct(producentId : String){
         firebaseInitProducent().child("produsens").child(producentId).child("products")

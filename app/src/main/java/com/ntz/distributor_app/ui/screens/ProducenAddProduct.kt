@@ -2,16 +2,14 @@ package com.ntz.distributor_app.ui.screens
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -30,11 +28,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.ntz.distributor_app.ui.viewmodel.FirebaseRealtimeProducent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CenterTopBarProductAddView(
+fun ProducenAddProductView(
     modifier: Modifier = Modifier,
     navController: NavController
 ) {
@@ -70,13 +70,18 @@ fun CenterTopBarProductAddView(
 }
 
 @Composable
-fun ProducenViewAddProduct(innerPadding : PaddingValues, navController: NavController,modifier: Modifier = Modifier){
+fun ProducenViewAddProduct(
+    innerPadding : PaddingValues,
+    navController: NavController,
+    modifier: Modifier = Modifier,
+    firebaseRealtimeProducent: FirebaseRealtimeProducent = viewModel()
+){
 
     var productName by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var photo by remember { mutableStateOf("") }
+    var photoUrl by remember { mutableStateOf("") }
 
     LazyColumn(
         modifier = modifier
@@ -84,7 +89,7 @@ fun ProducenViewAddProduct(innerPadding : PaddingValues, navController: NavContr
             .fillMaxWidth()
     ) {
         item {
-            Text("Tambah Barang", modifier = modifier.padding(start = 16.dp, top = 16.dp))
+            Text("Nama Barang", modifier = modifier.padding(start = 16.dp, top = 16.dp))
             TextField(
                 value = productName,
                 onValueChange = { productName = it },
@@ -122,6 +127,7 @@ fun ProducenViewAddProduct(innerPadding : PaddingValues, navController: NavContr
                 modifier = modifier
                     .padding(16.dp)
                     .fillMaxWidth()
+                    .heightIn(min = 100.dp)
             )
 
             Button(
@@ -134,7 +140,15 @@ fun ProducenViewAddProduct(innerPadding : PaddingValues, navController: NavContr
             }
 
             Button(
-                onClick = { /* Handle button click */ },
+                onClick = {
+                    firebaseRealtimeProducent.setProduct(
+                        stuffName = productName,
+                        category = category,
+                        price = price.toDouble(),
+                        description = description,
+                        photo = photoUrl
+                    )
+                },
                 modifier = modifier
                     .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
                     .fillMaxWidth()
@@ -149,5 +163,5 @@ fun ProducenViewAddProduct(innerPadding : PaddingValues, navController: NavContr
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun ProductAddProductPreview(){
-    CenterTopBarProductAddView(navController = NavController(LocalContext.current))
+    ProducenAddProductView(navController = NavController(LocalContext.current))
 }

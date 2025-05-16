@@ -7,7 +7,7 @@ data class ProducentProductData(
     var id: String = "",
     var stuffName : String = "",
     var category : String = "",
-    var price : String = "",
+    var price : Double = 0.0,
     var description : String = "",
     var photo : String = ""
 )

@@ -32,8 +32,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ntz.distributor_app.R
+import com.ntz.distributor_app.ui.viewmodel.FirebaseRealtimeAgent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,12 +61,13 @@ fun AgentMainActivityView(navController: NavController){
 }
 
 @Composable
-fun ShowProductForAgent(innerPadding : PaddingValues, modifier : Modifier = Modifier, navController: NavController){
+fun ShowProductForAgent(innerPadding : PaddingValues, modifier : Modifier = Modifier, navController: NavController, viewModelAgent: FirebaseRealtimeAgent = viewModel()){
     LazyColumn(
         contentPadding = innerPadding,
         modifier = modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ){
+        viewModelAgent.getAllAgentData()
         items(10){
             Card(
                 modifier = modifier

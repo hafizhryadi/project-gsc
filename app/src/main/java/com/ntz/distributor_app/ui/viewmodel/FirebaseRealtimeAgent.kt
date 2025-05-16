@@ -108,6 +108,27 @@ class FirebaseRealtimeAgent : ViewModel(){
         })
     }
 
+    fun getAllAgentData() {
+        firebaseInitAgent().child("agents").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val userDataList : MutableList<AgentData> = mutableListOf()
+                snapshot.children.forEach {
+                    val userData = it.getValue(AgentData::class.java)
+                    userData?.let {
+                        userDataList.add(it)
+                    }
+                }
+                userData.value = userDataList
+                Log.d("FirebaseRealtimeAgentListDataAgent", "AgentData: $userDataList")
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                _agentState.value = AgentState.Error("Error getting agent data: ${error.message}")
+                Log.e("FirebaseRealtimeAgent", "Error getting agent data: ${error.message}")
+            }
+        })
+    }
+
     fun updateAgentData(
         userId: String = getUidandEmailUser().first,
         fullname: String? = null,

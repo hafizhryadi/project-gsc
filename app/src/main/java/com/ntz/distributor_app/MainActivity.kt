@@ -23,7 +23,9 @@ import com.ntz.distributor_app.ui.screens.AgentMainActivityView
 import com.ntz.distributor_app.ui.screens.AgentViewData
 import com.ntz.distributor_app.ui.screens.AgentViewRecommendation
 import com.ntz.distributor_app.ui.screens.LoginScreen
+import com.ntz.distributor_app.ui.screens.ProducenAddProductView
 import com.ntz.distributor_app.ui.screens.ProducenViewData
+import com.ntz.distributor_app.ui.screens.ProducentMainPageActivity
 import com.ntz.distributor_app.ui.screens.UserViewDecision
 import com.ntz.distributor_app.ui.theme.Distributor_appTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -50,7 +52,9 @@ class MainActivity : ComponentActivity() {
                             LoginScreen(
                                 onLoginSuccess = {
                                     Toast.makeText(this@MainActivity, "Login berhasil", Toast.LENGTH_SHORT).show()
-                                    navController.navigate("UserDecision")
+                                    // navController.navigate("UserDecision")
+                                    //  navController.navigate("ProducentMainActivity")
+                                    navController.navigate("PreferenceProducefindAgent")
                                 },
                                 navController = navController
                             )
@@ -80,23 +84,19 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                    }
-                    /*BuyerRecommendation(
-                        onNavigateToPreferences = {
-                            Toast.makeText(this, "Buka preferensi", Toast.LENGTH_SHORT).show()
-                        },
-                        onLogout = {
-                            Toast.makeText(this, "Logout", Toast.LENGTH_SHORT).show()
+                        composable("ProducentMainActivity"){
+                            ProducentMainPageActivity(
+                                navController = navController
+                            )
                         }
-                    )*/
 
-                    /*LoginScreen(
-                        onLoginSuccess = {
-                            Toast.makeText(this, "Login berhasil", Toast.LENGTH_SHORT).show()
-                        },
-                        navController = rememberNavController()
-                    )*/
+                        composable("ProducenAddProduct"){
+                            ProducenAddProductView(
+                                navController = navController
+                            )
+                        }
 
+                    }
                 }
             }
         }

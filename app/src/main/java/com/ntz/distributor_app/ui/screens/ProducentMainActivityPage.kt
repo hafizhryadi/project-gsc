@@ -9,13 +9,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Card
@@ -37,7 +35,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,7 +45,7 @@ import com.ntz.distributor_app.data.model.AgentData
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CenterTopBarAgentView(
+fun ProducentMainPageActivity(
     modifier: Modifier = Modifier,
     navController: NavController
 ) {
@@ -89,7 +86,9 @@ fun CenterTopBarAgentView(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { /* Handle floating action button click */ },
+                onClick = {
+                    navController.navigate("ProducenAddProduct")
+                },
                 icon = { Icon(Icons.Filled.Add, "Extended floating action button.") },
                 text = { Text(text = "Tambah Barang") },
                 modifier = Modifier.padding(end = 16.dp)
@@ -266,5 +265,5 @@ fun AgentViewRecommendation(navController: NavController, modifier: Modifier = M
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun AgentViewRecommendationPreview(){
-    CenterTopBarAgentView(navController = NavController(LocalContext.current))
+    ProducentMainPageActivity(navController = NavController(LocalContext.current))
 }
