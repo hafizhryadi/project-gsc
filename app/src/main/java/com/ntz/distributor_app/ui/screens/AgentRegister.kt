@@ -104,8 +104,7 @@ fun AgentViewData(
                Spacer(modifier = Modifier.padding(start = 10.dp))
 
                Column(
-                   modifier = Modifier
-                       .weight(1f)
+                   modifier = Modifier.weight(1f)
                ){
                    Text("Jenis Kelamin")
                    TextField(

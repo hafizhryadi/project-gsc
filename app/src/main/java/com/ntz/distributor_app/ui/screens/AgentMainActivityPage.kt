@@ -25,6 +25,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -36,6 +38,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ntz.distributor_app.R
 import com.ntz.distributor_app.ui.viewmodel.FirebaseRealtimeAgent
+import com.ntz.distributor_app.ui.viewmodel.FirebaseRealtimeProducent
+import com.ntz.distributor_app.ui.viewmodel.GeminiViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,13 +65,32 @@ fun AgentMainActivityView(navController: NavController){
 }
 
 @Composable
-fun ShowProductForAgent(innerPadding : PaddingValues, modifier : Modifier = Modifier, navController: NavController, viewModelAgent: FirebaseRealtimeAgent = viewModel()){
+fun ShowProductForAgent(
+    innerPadding : PaddingValues,
+    modifier : Modifier = Modifier,
+    navController: NavController,
+    viewModelProducen: FirebaseRealtimeProducent = viewModel(),
+    geminiViewModel: GeminiViewModel = viewModel()
+){
+
+    val userProducenData by viewModelProducen.producentDataList.collectAsState()
+    viewModelProducen.getAllProducen()
+
+    // gemini recommendation
+    val geminiRecommendation by geminiViewModel.geminiResponse.collectAsState()
+    // example tested
+    geminiViewModel.generateRecommendationProducen(
+        city = "Bogor",
+        regency = "Kebun raya bogor",
+        roleToSearch = "Produsens",
+        listData = userProducenData
+    )
+
     LazyColumn(
         contentPadding = innerPadding,
         modifier = modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ){
-        viewModelAgent.getAllAgentData()
         items(10){
             Card(
                 modifier = modifier

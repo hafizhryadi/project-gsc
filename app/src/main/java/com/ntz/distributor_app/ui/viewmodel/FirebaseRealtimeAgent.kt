@@ -38,6 +38,7 @@ class FirebaseRealtimeAgent : ViewModel(){
     val agentState : StateFlow<AgentState> = _agentState
 
     var userData : MutableStateFlow<MutableList<AgentData>> = MutableStateFlow(mutableListOf())
+    val userDataList : StateFlow<MutableList<AgentData>> = userData
 
     fun firebaseInitAgent() : DatabaseReference{
         return Firebase.database.reference

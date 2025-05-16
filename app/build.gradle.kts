@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.google.devtools.ksp)
     alias(libs.plugins.google.dagger.hilt.android)
     alias(libs.plugins.google.gms.google.services)
+    kotlin("plugin.serialization") version "2.1.21"
 }
 
 android {
@@ -110,4 +111,5 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.coil.compose)
     implementation(libs.androidx.core.splashscreen)
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
 }

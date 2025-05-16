@@ -29,6 +29,9 @@ class FirebaseRealtimeProducent : ViewModel() {
 
     val productListData = MutableStateFlow<List<ProducentProductData>>(emptyList())
 
+    val producenListData : MutableStateFlow<MutableList<ProducenData>> = MutableStateFlow(mutableListOf())
+    val producentDataList : StateFlow<MutableList<ProducenData>> = producenListData
+
 
     fun firebaseInitProducent() : DatabaseReference {
         return Firebase.database.reference
@@ -106,6 +109,27 @@ class FirebaseRealtimeProducent : ViewModel() {
                 _producentState.value = ProducentState.Error("Error setting product data: ${it.message}")
                 Log.e("FirebaseRealtimeProducent", "Error setting product data: ${it.message}")
             }
+    }
+
+    fun getAllProducen(){
+        firebaseInitProducent().child("produsens").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val producentList : MutableList<ProducenData> = mutableListOf()
+                snapshot.children.forEach {
+                    val producentData = it.getValue(ProducenData::class.java)
+                    producentData?.let {
+                        producentList.add(it)
+                    }
+                }
+                producenListData.value = producentList
+                Log.d("FirebaseRealtimeProducent", "ProducentData: $producentList")
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                _producentState.value = ProducentState.Error("Error getting producent data: ${error.message}")
+                Log.e("FirebaseRealtimeProducent", "Error getting producent data: ${error.message}")
+            }
+        })
     }
 
 
