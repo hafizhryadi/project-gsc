@@ -76,21 +76,13 @@ class FirebaseRealtimeAgent : ViewModel(){
         )
 
         // first, update role, and then update data
-        firebaseInitAgent().child("users").child(userId).child("role").setValue("agen")
+        firebaseInitAgent().child("agents").child(userId).setValue(dataMap)
             .addOnSuccessListener {
-                firebaseInitAgent().child("agents").child(userId).setValue(dataMap)
-                    .addOnSuccessListener {
-                        _agentState.value = AgentState.Success(dataMap as AgentData)
-                        Log.d("FirebaseRealtimeAgent", "Agent data set successfully")
-                    }
-                    .addOnFailureListener {
-                        _agentState.value = AgentState.Error("Error setting agent data: ${it.message}")
-                        Log.e("FirebaseRealtimeAgent", "Error setting agent data: ${it.message}")
-                    }
+                Log.d("FirebaseRealtimeAgent", "Agent data set successfully")
             }
             .addOnFailureListener {
-                _agentState.value = AgentState.Error("Error setting user role: ${it.message}")
-                Log.e("FirebaseRealtimeAgent", "Error setting user role: ${it.message}")
+                _agentState.value = AgentState.Error("Error setting agent data: ${it.message}")
+                Log.e("FirebaseRealtimeAgent", "Error setting agent data: ${it.message}")
             }
     }
 

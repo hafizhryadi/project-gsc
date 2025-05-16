@@ -22,6 +22,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
+import com.ntz.distributor_app.ui.viewmodel.AuthViewModel
 import com.ntz.distributor_app.ui.viewmodel.FirebaseRealtimeAgent
 
 @Composable
@@ -29,12 +31,12 @@ fun AgentViewData(
     navController: NavController,
     agentViewModel: FirebaseRealtimeAgent = viewModel()
 ){
-    var id by remember { mutableStateOf("") }
+    var id by remember { mutableStateOf(FirebaseAuth.getInstance().currentUser?.uid ?: "") }
     var fullname by remember { mutableStateOf("") }
     var nickname by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf(FirebaseAuth.getInstance().currentUser?.email ?: "") }
     var phoneNumber by remember { mutableStateOf("") }
-    var country by remember { mutableStateOf("") }
+    var country by remember { mutableStateOf("Indonesia") }
     var gender by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
     var city by remember { mutableStateOf("") }
@@ -93,8 +95,8 @@ fun AgentViewData(
             ) {
                 Text("Negara")
                 TextField(
-                    value = "Indonesia",
-                    onValueChange = { "Indonesia" },
+                    value = country,
+                    onValueChange = { country = it },
                     label = { Text("Negara") },
                     readOnly = true,
                 )
@@ -146,6 +148,7 @@ fun AgentViewData(
         Button(
             onClick = {
                 agentViewModel.setAgentData(
+                    userId = id,
                     fullname = fullname,
                     nickname = nickname,
                     email = email,
